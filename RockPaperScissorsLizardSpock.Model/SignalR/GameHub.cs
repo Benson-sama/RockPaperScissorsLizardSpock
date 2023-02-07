@@ -8,6 +8,8 @@ public class GameHub : Hub<IGameClient>
 {
     private static readonly ConcurrentDictionary<string, string> _connections = new();
 
+    private static readonly ConcurrentDictionary<Guid, Game> _games = new();
+
     public override Task OnConnectedAsync() => base.OnConnectedAsync();
 
     public override Task OnDisconnectedAsync(Exception exception)
