@@ -7,8 +7,7 @@ using RockPaperScissorsLizardSpock.Model.SignalR;
 
 namespace RockPaperScissorsLizardSpock.Client.ViewModels;
 
-[ObservableObject]
-public partial class GameViewModel : IGameClient
+public partial class GameViewModel : ObservableObject, IGameClient
 {
     private readonly IDispatcher _dispatcher;
     private readonly IDialogService _dialogService;
