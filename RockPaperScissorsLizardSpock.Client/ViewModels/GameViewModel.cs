@@ -1,8 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using RockPaperScissorsLizardSpock.Client.Services;
+using RockPaperScissorsLizardSpock.Model.Messages;
 using RockPaperScissorsLizardSpock.Model.SignalR;
 
 namespace RockPaperScissorsLizardSpock.Client.ViewModels;
@@ -21,6 +23,12 @@ public partial class GameViewModel : ObservableObject, IGameClient
     [ObservableProperty]
     private IEnumerable<string> _playerList = Enumerable.Empty<string>();
 
+    [ObservableProperty]
+    private ObservableCollection<ChallengeMessage> _challengeMessages = new();
+
+    [ObservableProperty]
+    private ObservableCollection<WinnerAnnouncedMessage> _winnerAnnouncedMessages = new();
+
     public GameViewModel(IDispatcher dispatcher, IDialogService dialogService, IUrlService urlService)
     {
         _dispatcher = dispatcher;
@@ -38,7 +46,10 @@ public partial class GameViewModel : ObservableObject, IGameClient
             .Build();
 
         _hubConnection.Closed += HubConnectionClosed;
+        _hubConnection.On(nameof(InvalidUsername), InvalidUsername);
         _hubConnection.On<IEnumerable<string>>(nameof(ReceiveCurrentPlayerList), ReceiveCurrentPlayerList);
+        _hubConnection.On<ChallengeMessage>(nameof(ReceiveChallenge), ReceiveChallenge);
+        _hubConnection.On<WinnerAnnouncedMessage>(nameof(AnnounceWinner), AnnounceWinner);
 
         try
         {
@@ -52,7 +63,11 @@ public partial class GameViewModel : ObservableObject, IGameClient
         }
     }
 
-    public Task InvalidUsername() => throw new NotImplementedException();
+    public Task InvalidUsername()
+    {
+        return _dispatcher.DispatchAsync(()
+            => _dialogService.ShowMessageAsync(title: "Game Server", message: "Username already taken."));
+    }
 
     public Task ReceiveCurrentPlayerList(IEnumerable<string> playerList)
     {
@@ -60,11 +75,17 @@ public partial class GameViewModel : ObservableObject, IGameClient
             => PlayerList = playerList);
     }
 
-    public Task ReceiveChallengeFrom(string playerName) => throw new NotImplementedException();
+    public Task ReceiveChallenge(ChallengeMessage message)
+    {
+        return _dispatcher.DispatchAsync(()
+            => ChallengeMessages.Add(message));
+    }
 
-    public Task ReceiveGameResult() => throw new NotImplementedException();
-
-    public Task AnnounceWinner() => throw new NotImplementedException();
+    public Task AnnounceWinner(WinnerAnnouncedMessage message)
+    {
+        return _dispatcher.DispatchAsync(()
+            => WinnerAnnouncedMessages.Add(message));
+    }
 
     private Task HubConnectionClosed(Exception? arg)
     {

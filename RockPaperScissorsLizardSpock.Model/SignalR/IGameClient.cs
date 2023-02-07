@@ -1,15 +1,14 @@
-﻿namespace RockPaperScissorsLizardSpock.Model.SignalR;
+﻿using RockPaperScissorsLizardSpock.Model.Messages;
 
-// TODO: Change method signatures to actual needs.
+namespace RockPaperScissorsLizardSpock.Model.SignalR;
+
 public interface IGameClient
 {
     Task InvalidUsername();
 
     Task ReceiveCurrentPlayerList(IEnumerable<string> playerList);
 
-    Task ReceiveChallengeFrom(string playerName);
+    Task ReceiveChallenge(ChallengeMessage message);
 
-    Task ReceiveGameResult();
-
-    Task AnnounceWinner();
+    Task AnnounceWinner(WinnerAnnouncedMessage message);
 }
