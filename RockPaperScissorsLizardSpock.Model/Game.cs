@@ -55,4 +55,21 @@ public class Game
     {
         get => FirstPlayerMove is not null && SecondPlayerMove is not null;
     }
+
+    public string DecideWinner()
+    {
+        if (FirstPlayerMove is null || SecondPlayerMove is null)
+            return "ongoing";
+
+        Move? winner = RuleBook.DecideWinner(FirstPlayerMove, SecondPlayerMove);
+
+        if (winner is null)
+            return "tie";
+        else if (winner == FirstPlayerMove)
+            return FirstPlayerName;
+        else if (winner == SecondPlayerMove)
+            return SecondPlayerName;
+        else
+            throw new ArgumentOutOfRangeException();
+    }
 }
