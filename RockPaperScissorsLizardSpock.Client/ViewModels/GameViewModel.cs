@@ -1,16 +1,23 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using RockPaperScissorsLizardSpock.Client.Services;
+using RockPaperScissorsLizardSpock.Model.SignalR;
 
 namespace RockPaperScissorsLizardSpock.Client.ViewModels;
 
-public partial class GameViewModel : ObservableObject
+[ObservableObject]
+public partial class GameViewModel : IGameClient
 {
     private readonly IDispatcher _dispatcher;
     private readonly IDialogService _dialogService;
     private readonly IUrlService _urlService;
     private HubConnection? _hubConnection;
+
+    // TODO: Make customisable in UI.
+    [ObservableProperty]
+    private string _username = "Silverstone";
 
     public GameViewModel(IDispatcher dispatcher, IDialogService dialogService, IUrlService urlService)
     {
@@ -34,12 +41,23 @@ public partial class GameViewModel : ObservableObject
         {
             await _hubConnection.StartAsync();
             await _dialogService.ShowMessageAsync(title: "Game Server", message: "Connected.");
+            await _hubConnection.SendAsync("PlayWithMe", Username);
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException e)
         {
-            await _dialogService.ShowMessageAsync(ex.Message);
+            await _dialogService.ShowMessageAsync(e.Message);
         }
     }
+
+    public Task InvalidUsername() => throw new NotImplementedException();
+
+    public Task ReceiveCurrentPlayerList(IEnumerable<string> playerList) => throw new NotImplementedException();
+
+    public Task ReceiveChallengeFrom(string playerName) => throw new NotImplementedException();
+
+    public Task ReceiveGameResult() => throw new NotImplementedException();
+
+    public Task AnnounceWinner() => throw new NotImplementedException();
 
     private Task HubConnectionClosed(Exception? arg)
     {
@@ -49,5 +67,4 @@ public partial class GameViewModel : ObservableObject
 
     private ValueTask CloseConnectionAsync() =>
         _hubConnection?.DisposeAsync() ?? ValueTask.CompletedTask;
-
 }
