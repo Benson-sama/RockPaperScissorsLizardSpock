@@ -15,7 +15,12 @@
         <Button
             Text="Connect"
             Command="{x:Binding ConnectCommand}"
-            HorizontalOptions="Center" />
+            HorizontalOptions="Center" 
+            Margin="20" />
+
+        <Entry Text="{x:Binding Username, Mode=TwoWay}"
+               Margin="20" />
+        
     </VerticalStackLayout>
     
 </ContentPage>
