@@ -19,6 +19,9 @@ public partial class GameViewModel : IGameClient
     [ObservableProperty]
     private string _username = "Silverstone";
 
+    [ObservableProperty]
+    private IEnumerable<string> _playerList = Enumerable.Empty<string>();
+
     public GameViewModel(IDispatcher dispatcher, IDialogService dialogService, IUrlService urlService)
     {
         _dispatcher = dispatcher;
@@ -36,6 +39,7 @@ public partial class GameViewModel : IGameClient
             .Build();
 
         _hubConnection.Closed += HubConnectionClosed;
+        _hubConnection.On<IEnumerable<string>>(nameof(ReceiveCurrentPlayerList), ReceiveCurrentPlayerList);
 
         try
         {
@@ -51,7 +55,11 @@ public partial class GameViewModel : IGameClient
 
     public Task InvalidUsername() => throw new NotImplementedException();
 
-    public Task ReceiveCurrentPlayerList(IEnumerable<string> playerList) => throw new NotImplementedException();
+    public Task ReceiveCurrentPlayerList(IEnumerable<string> playerList)
+    {
+        return _dispatcher.DispatchAsync(()
+            => PlayerList = playerList);
+    }
 
     public Task ReceiveChallengeFrom(string playerName) => throw new NotImplementedException();
 

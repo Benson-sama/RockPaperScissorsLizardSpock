@@ -20,8 +20,13 @@ public class GameHub : Hub<IGameClient>
     public async Task PlayWithMe(string playerName)
     {
         if (_connections.ContainsKey(playerName))
+        {
             await Clients.Caller.InvalidUsername();
+        }
         else
+        {
             _connections[playerName] = Context.ConnectionId;
+            await Clients.All.ReceiveCurrentPlayerList(_connections.Keys);
+        }
     }
 }
